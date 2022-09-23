@@ -12,14 +12,16 @@ const byte ADDRESS[6] = "RCCAR";
 
 const int JOYSTICK_L_X_PIN = A0;
 const int JOYSTICK_L_Y_PIN = A1;
+const int JOYSTICK_R_X_PIN = A2;
+const int JOYSTICK_R_Y_PIN = A3;
 
-const int JOYSTICK_RESTING_DEV = 16;  // Deviation from joystick resting value to prevent micro-scale movements.
+const int JOYSTICK_RESTING_DEV = 20;  // Deviation from joystick resting value to prevent micro-scale movements.
 
 
 // This array holds all the data that is going to be sent through the NRF module.
 // The order and length of this array has to match with the array in the receiver.
-// Order: joystickLX, joystickLY.
-const int NUM_OF_DATA_ITEMS = 2;
+// Order: joystickLX, joystickLY, joystickRX, joystickRY.
+const int NUM_OF_DATA_ITEMS = 4;
 byte dataArray[NUM_OF_DATA_ITEMS];
 
 
@@ -43,6 +45,10 @@ void loop() {
   // Left joystick
   dataArray[0] = getJoystickValue(JOYSTICK_L_X_PIN);
   dataArray[1] = getJoystickValue(JOYSTICK_L_Y_PIN);
+
+  // Right joystick
+  dataArray[2] = getJoystickValue(JOYSTICK_R_X_PIN);
+  dataArray[3] = getJoystickValue(JOYSTICK_R_Y_PIN);
 
 
   // If the data array is not the same (data has changed), then send data.

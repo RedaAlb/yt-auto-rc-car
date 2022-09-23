@@ -9,16 +9,19 @@ const byte ADDRESS[6] = "RCCAR";
 
 
 // Controls pins for the motor drivers.
-const int MOTORS_FORWARD_PIN = 26;    // Motors forward.
-const int MOTORS_BACKWARD_PIN = 25;   // Motors backwards.
+const int MOTORS_LEFT_FWD_PIN = 26;   // Left motors forward
+const int MOTORS_LEFT_BCK_PIN = 25;   // Left motors backwards
+const int MOTORS_RIGHT_FWD_PIN = 33;  // Right motors forward
+const int MOTORS_RIGHT_BCK_PIN = 32;  // Right motors backwards
 
 const int STEERING_SERVO_PIN = 17;
 const int STEERING_SERVO_ANGLE_MID = 90;  // The middle angle for the servo, resting position.
 const int STEERING_SERVO_ANGLE_LIMIT = 50;  // Steering max angle allowed.
 
 
-// PWM channels to control the motors, channel 0 for forward, 1 for backwards.
-const int PWM_CHANNELS[] = { 2, 3 };
+// PWM channels to control the motors.
+// 2-3 pwm channels are for the left motors (forward and backwards), 4-5 for the right motors.
+const int PWM_CHANNELS[] = { 2, 3, 4, 5 };
 const int PWM_FREQ = 500;
 const int PWM_RES = 8;
 
@@ -83,8 +86,10 @@ void initPwm() {
     ledcSetup(channel, PWM_FREQ, PWM_RES);
   }
 
-  ledcAttachPin(MOTORS_FORWARD_PIN, PWM_CHANNELS[0]);
-  ledcAttachPin(MOTORS_BACKWARD_PIN, PWM_CHANNELS[1]);
+  ledcAttachPin(MOTORS_LEFT_FWD_PIN, PWM_CHANNELS[0]);
+  ledcAttachPin(MOTORS_LEFT_BCK_PIN, PWM_CHANNELS[1]);
+  ledcAttachPin(MOTORS_RIGHT_FWD_PIN, PWM_CHANNELS[2]);
+  ledcAttachPin(MOTORS_RIGHT_BCK_PIN, PWM_CHANNELS[3]);
 }
 
 
@@ -136,16 +141,22 @@ void printArrayValues(byte array[], int arrayLength, String spacer) {
 void forward(int speed) {
   ledcWrite(PWM_CHANNELS[0], speed);
   ledcWrite(PWM_CHANNELS[1], 0);
+  ledcWrite(PWM_CHANNELS[2], speed);
+  ledcWrite(PWM_CHANNELS[3], 0);
 }
 
 
 void backward(int speed) {
   ledcWrite(PWM_CHANNELS[0], 0);
   ledcWrite(PWM_CHANNELS[1], speed);
+  ledcWrite(PWM_CHANNELS[2], 0);
+  ledcWrite(PWM_CHANNELS[3], speed);
 }
 
 
 void stopCar() {
   ledcWrite(PWM_CHANNELS[0], 0);
   ledcWrite(PWM_CHANNELS[1], 0);
+  ledcWrite(PWM_CHANNELS[2], 0);
+  ledcWrite(PWM_CHANNELS[3], 0);
 }

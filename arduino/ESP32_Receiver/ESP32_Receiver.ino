@@ -31,8 +31,8 @@ const int JOYSTICK_RESTING_VALUE = 127;
 
 // This array holds all the data that is received from the NRF module.
 // The order and length of this array has to match with the array in the transmitter.
-// Order: joystickLX, joystickLY, joystickRX, joystickRY.
-const int NUM_OF_DATA_ITEMS = 4;
+// Order: joystickLX, joystickLY, joystickRX, joystickRY, btnLeft, btnRight.
+const int NUM_OF_DATA_ITEMS = 6;
 byte dataArray[NUM_OF_DATA_ITEMS];
 
 

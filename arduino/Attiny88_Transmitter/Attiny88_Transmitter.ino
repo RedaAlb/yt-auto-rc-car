@@ -1,5 +1,5 @@
-#include <SoftwareSerial.h>
 #include "RF24.h"
+#include <SoftwareSerial.h>
 
 
 const int RX = 7;
@@ -9,6 +9,8 @@ const int CSN_PIN = 15;
 const int CE_PIN = 5;
 const byte ADDRESS[6] = "RCCAR";
 
+const int BTN_LEFT_PIN = 14;
+const int BTN_RIGHT_PIN = 8;
 
 const int JOYSTICK_L_X_PIN = A0;
 const int JOYSTICK_L_Y_PIN = A1;
@@ -20,8 +22,8 @@ const int JOYSTICK_RESTING_DEV = 20;  // Deviation from joystick resting value t
 
 // This array holds all the data that is going to be sent through the NRF module.
 // The order and length of this array has to match with the array in the receiver.
-// Order: joystickLX, joystickLY, joystickRX, joystickRY.
-const int NUM_OF_DATA_ITEMS = 4;
+// Order: joystickLX, joystickLY, joystickRX, joystickRY, btnLeft, btnRight.
+const int NUM_OF_DATA_ITEMS = 6;
 byte dataArray[NUM_OF_DATA_ITEMS];
 
 
@@ -33,6 +35,9 @@ void setup() {
   // Serial1.begin(19200);
 
   initRadio();
+
+  pinMode(BTN_LEFT_PIN, INPUT_PULLUP);
+  pinMode(BTN_RIGHT_PIN, INPUT_PULLUP);
 }
 
 
@@ -49,6 +54,10 @@ void loop() {
   // Right joystick
   dataArray[2] = getJoystickValue(JOYSTICK_R_X_PIN);
   dataArray[3] = getJoystickValue(JOYSTICK_R_Y_PIN);
+
+  // Buttons
+  dataArray[4] = digitalRead(BTN_LEFT_PIN);
+  dataArray[5] = digitalRead(BTN_RIGHT_PIN);
 
 
   // If the data array is not the same (data has changed), then send data.

@@ -72,3 +72,14 @@ All libraries can be easily installed using the Arduino IDE library manager.
 - 10µF capacitors (x4), two for each of the LD1095 voltage regulators.
 - [Switches](https://amzn.eu/d/4lvAWpm) (x2), one to turn on and off the car and other for the joystick.
 - [Buttons](https://www.cricklewoodelectronics.com/Red-Top-Push-to-Make-Miiniature-Switch.html) (x2), for the joystick controller.
+
+
+# Wiring
+
+## Transmitter (joystick controller, Attiny88)
+
+![](/readme_imgs/breadboard_transmitter.png)
+
+## Receiver (car, ESP32)
+
+![](/readme_imgs/breadboard_receiver.png)

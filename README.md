@@ -83,3 +83,8 @@ All libraries can be easily installed using the Arduino IDE library manager.
 ## Receiver (car, ESP32)
 
 ![](/readme_imgs/breadboard_receiver.png)
+
+
+# 3D printing
+
+Please refer to the `/3d_printing` directory.

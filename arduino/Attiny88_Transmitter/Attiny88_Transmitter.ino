@@ -66,8 +66,6 @@ void loop() {
   if (comp != 0) {
     radio.write(&dataArray, sizeof(dataArray));
   }
-
-  delay(33);
 }
 
 
@@ -77,8 +75,8 @@ void initRadio() {
   }
 
   radio.openWritingPipe(ADDRESS);
-  radio.setPALevel(RF24_PA_LOW);
-  radio.setDataRate(RF24_1MBPS);
+  radio.setPALevel(RF24_PA_HIGH);
+  radio.setDataRate(RF24_2MBPS);
 
   radio.stopListening();
 }

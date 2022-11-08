@@ -1,7 +1,9 @@
 import sys
 
 import cv2
+
 import raspberry
+import esp32
 
 
 def run():
@@ -13,6 +15,13 @@ def run():
         # Skip frame if unsuccesfully received and move straight on to the next frame.
         if frame is None:
             continue
+
+        
+        esp32_recv_data = esp32.recv_esp32_data()
+
+        esp32_data_to_send = [11, 22, 33]  # Sample data.
+        esp32.send_to_esp32(esp32_data_to_send)
+
 
         cv2.imshow("Frame", frame)
 

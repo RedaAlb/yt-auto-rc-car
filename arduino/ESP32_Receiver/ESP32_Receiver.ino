@@ -41,122 +41,122 @@ Servo steeringServo;
 
 
 void setup() {
-  Serial.begin(115200);
+    Serial.begin(115200);
 
-  initRadio();
-  initPwm();
+    initRadio();
+    initPwm();
 
-  steeringServo.write(STEERING_SERVO_ANGLE_MID);
-  steeringServo.attach(STEERING_SERVO_PIN);
+    steeringServo.write(STEERING_SERVO_ANGLE_MID);
+    steeringServo.attach(STEERING_SERVO_PIN);
 }
 
 
 void loop() {
-  if (!radio.available()) {
-    return;
-  }
+    if (!radio.available()) {
+        return;
+    }
 
-  radio.read(&dataArray, sizeof(dataArray));
+    radio.read(&dataArray, sizeof(dataArray));
 
-  handleVerticalMovement();
-  handleSteering();
+    handleVerticalMovement();
+    handleSteering();
 
-  printArrayValues(dataArray, (sizeof(dataArray) / sizeof(dataArray[0])), " ");
+    printArrayValues(dataArray, (sizeof(dataArray) / sizeof(dataArray[0])), " ");
 }
 
 
 void initRadio() {
-  if (!radio.begin()) {
-    while (1) {}
-  }
+    if (!radio.begin()) {
+        while (1) {}
+    }
 
-  radio.openReadingPipe(1, ADDRESS);
-  radio.setPALevel(RF24_PA_HIGH);
-  radio.setDataRate(RF24_2MBPS);
+    radio.openReadingPipe(1, ADDRESS);
+    radio.setPALevel(RF24_PA_HIGH);
+    radio.setDataRate(RF24_2MBPS);
 
-  radio.startListening();
+    radio.startListening();
 }
 
 
 void initPwm() {
-  int numOfChannels = sizeof(PWM_CHANNELS) / sizeof(PWM_CHANNELS[0]);
+    int numOfChannels = sizeof(PWM_CHANNELS) / sizeof(PWM_CHANNELS[0]);
 
-  for (int i = 0; i < numOfChannels; i++) {
-    int channel = PWM_CHANNELS[i];
-    ledcSetup(channel, PWM_FREQ, PWM_RES);
-  }
+    for (int i = 0; i < numOfChannels; i++) {
+        int channel = PWM_CHANNELS[i];
+        ledcSetup(channel, PWM_FREQ, PWM_RES);
+    }
 
-  ledcAttachPin(MOTORS_LEFT_FWD_PIN, PWM_CHANNELS[0]);
-  ledcAttachPin(MOTORS_LEFT_BCK_PIN, PWM_CHANNELS[1]);
-  ledcAttachPin(MOTORS_RIGHT_FWD_PIN, PWM_CHANNELS[2]);
-  ledcAttachPin(MOTORS_RIGHT_BCK_PIN, PWM_CHANNELS[3]);
+    ledcAttachPin(MOTORS_LEFT_FWD_PIN, PWM_CHANNELS[0]);
+    ledcAttachPin(MOTORS_LEFT_BCK_PIN, PWM_CHANNELS[1]);
+    ledcAttachPin(MOTORS_RIGHT_FWD_PIN, PWM_CHANNELS[2]);
+    ledcAttachPin(MOTORS_RIGHT_BCK_PIN, PWM_CHANNELS[3]);
 }
 
 
 // Based on the position of the left joystick, move forwards or backwards.
 void handleVerticalMovement() {
-  int joystickLeftY = dataArray[1];
+    int joystickLeftY = dataArray[1];
 
-  if (joystickLeftY > JOYSTICK_RESTING_VALUE) {
-    int speed = map(joystickLeftY, JOYSTICK_RESTING_VALUE + 1, 255, 0, 255);
-    forward(speed);
-  }
-  else if (joystickLeftY < JOYSTICK_RESTING_VALUE) {
-    int speed = map(joystickLeftY, JOYSTICK_RESTING_VALUE - 1, 0, 0, 255);
-    backward(speed);
-  }
-  else {
-    stopCar();
-  }
+    if (joystickLeftY > JOYSTICK_RESTING_VALUE) {
+        int speed = map(joystickLeftY, JOYSTICK_RESTING_VALUE + 1, 255, 0, 255);
+        forward(speed);
+    }
+    else if (joystickLeftY < JOYSTICK_RESTING_VALUE) {
+        int speed = map(joystickLeftY, JOYSTICK_RESTING_VALUE - 1, 0, 0, 255);
+        backward(speed);
+    }
+    else {
+        stopCar();
+    }
 }
 
 
 void handleSteering() {
-  int joystickRightX = dataArray[2];
+    int joystickRightX = dataArray[2];
 
-  int minSteeringAngle = STEERING_SERVO_ANGLE_MID - STEERING_SERVO_ANGLE_LIMIT;
-  int maxSteeringAngle = STEERING_SERVO_ANGLE_MID + STEERING_SERVO_ANGLE_LIMIT;
+    int minSteeringAngle = STEERING_SERVO_ANGLE_MID - STEERING_SERVO_ANGLE_LIMIT;
+    int maxSteeringAngle = STEERING_SERVO_ANGLE_MID + STEERING_SERVO_ANGLE_LIMIT;
 
-  int servoValue = map(joystickRightX, 0, 255, minSteeringAngle, maxSteeringAngle);
+    int servoValue = map(joystickRightX, 0, 255, minSteeringAngle, maxSteeringAngle);
 
-  steeringServo.write(servoValue);
+    steeringServo.write(servoValue);
 
-  Serial.print(servoValue);
-  Serial.print(" | ");
+    Serial.print(servoValue);
+    Serial.print(" | ");
 }
 
 
 void printArrayValues(byte array[], int arrayLength, String spacer) {
-  for (int i = 0; i < arrayLength; i++) {
-    int value = array[i];
+    for (int i = 0; i < arrayLength; i++) {
+        int value = array[i];
 
-    Serial.print(value);
-    Serial.print(spacer);
-  }
+        Serial.print(value);
+        Serial.print(spacer);
+    }
 
-  Serial.println("");
+    Serial.println("");
 }
 
 
 void forward(int speed) {
-  ledcWrite(PWM_CHANNELS[0], speed);
-  ledcWrite(PWM_CHANNELS[1], 0);
-  ledcWrite(PWM_CHANNELS[2], speed);
-  ledcWrite(PWM_CHANNELS[3], 0);
+    ledcWrite(PWM_CHANNELS[0], speed);
+    ledcWrite(PWM_CHANNELS[1], 0);
+    ledcWrite(PWM_CHANNELS[2], speed);
+    ledcWrite(PWM_CHANNELS[3], 0);
 }
 
 
 void backward(int speed) {
-  ledcWrite(PWM_CHANNELS[0], 0);
-  ledcWrite(PWM_CHANNELS[1], speed);
-  ledcWrite(PWM_CHANNELS[2], 0);
-  ledcWrite(PWM_CHANNELS[3], speed);
+    ledcWrite(PWM_CHANNELS[0], 0);
+    ledcWrite(PWM_CHANNELS[1], speed);
+    ledcWrite(PWM_CHANNELS[2], 0);
+    ledcWrite(PWM_CHANNELS[3], speed);
 }
 
 
 void stopCar() {
-  ledcWrite(PWM_CHANNELS[0], 0);
-  ledcWrite(PWM_CHANNELS[1], 0);
-  ledcWrite(PWM_CHANNELS[2], 0);
-  ledcWrite(PWM_CHANNELS[3], 0);
+    ledcWrite(PWM_CHANNELS[0], 0);
+    ledcWrite(PWM_CHANNELS[1], 0);
+    ledcWrite(PWM_CHANNELS[2], 0);
+    ledcWrite(PWM_CHANNELS[3], 0);
 }

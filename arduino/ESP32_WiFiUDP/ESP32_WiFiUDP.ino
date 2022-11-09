@@ -22,56 +22,56 @@ byte receivedValues[BYTES_TO_RECV];
 
 
 void setup() {
-  Serial.begin(115200);
+    Serial.begin(115200);
 
-  connectToWiFi();
+    connectToWiFi();
 }
 
 
 void loop() {
-  sendDataToPc(dataToSend);
+    sendDataToPc(dataToSend);
 
-  receiveDataFromPc();
+    receiveDataFromPc();
 
-  delay(33);
+    delay(33);
 }
 
 
 /// @brief Connect the ESP32 to the WiFi.
 void connectToWiFi() {
-  Serial.print("Connecting to ");
-  Serial.print(WIFI_SSID);
+    Serial.print("Connecting to ");
+    Serial.print(WIFI_SSID);
 
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
 
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
 
-  Serial.println("");
-  Serial.println("WiFi Connected");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+    Serial.println("");
+    Serial.println("WiFi Connected");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
 }
 
 
 /// @brief Send data to the PC using the UDP connection.
 /// @param dataToSend The data byte array to send to the PC.
 void sendDataToPc(byte dataToSend[]) {
-  udp.beginPacket(PC_IP, PORT);
-  udp.write(dataToSend, dataToSendLength);
-  udp.endPacket();
+    udp.beginPacket(PC_IP, PORT);
+    udp.write(dataToSend, dataToSendLength);
+    udp.endPacket();
 }
 
 
 /// @brief Updates receivedValues array with values received.
 void receiveDataFromPc() {
-  udp.parsePacket();
+    udp.parsePacket();
 
-  if (udp.read(receivedValues, BYTES_TO_RECV) > 0) {
-    printArrayValues(receivedValues, BYTES_TO_RECV, " ");
-  }
+    if (udp.read(receivedValues, BYTES_TO_RECV) > 0) {
+        printArrayValues(receivedValues, BYTES_TO_RECV, " ");
+    }
 }
 
 
@@ -80,12 +80,12 @@ void receiveDataFromPc() {
 /// @param arrayLength Array length.
 /// @param spacer The spacer that will be in-between each value when printed.
 void printArrayValues(byte array[], int arrayLength, String spacer) {
-  for (int i = 0; i < arrayLength; i++) {
-    int value = array[i];
+    for (int i = 0; i < arrayLength; i++) {
+        int value = array[i];
 
-    Serial.print(value);
-    Serial.print(spacer);
-  }
+        Serial.print(value);
+        Serial.print(spacer);
+    }
 
-  Serial.println("");
+    Serial.println("");
 }

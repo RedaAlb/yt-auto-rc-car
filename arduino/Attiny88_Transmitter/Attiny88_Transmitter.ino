@@ -32,73 +32,73 @@ RF24 radio(CE_PIN, CSN_PIN);
 
 
 void setup() {
-  // Serial1.begin(19200);
+    // Serial1.begin(19200);
 
-  initRadio();
+    initRadio();
 
-  pinMode(BTN_LEFT_PIN, INPUT_PULLUP);
-  pinMode(BTN_RIGHT_PIN, INPUT_PULLUP);
+    pinMode(BTN_LEFT_PIN, INPUT_PULLUP);
+    pinMode(BTN_RIGHT_PIN, INPUT_PULLUP);
 }
 
 
 void loop() {
-  // Storing previous data array, to be used to only send data if data has changed.
-  int prevDataArray[NUM_OF_DATA_ITEMS];
-  memcpy(prevDataArray, dataArray, sizeof(dataArray));
+    // Storing previous data array, to be used to only send data if data has changed.
+    int prevDataArray[NUM_OF_DATA_ITEMS];
+    memcpy(prevDataArray, dataArray, sizeof(dataArray));
 
 
-  // Left joystick
-  dataArray[0] = getJoystickValue(JOYSTICK_L_X_PIN);
-  dataArray[1] = getJoystickValue(JOYSTICK_L_Y_PIN);
+    // Left joystick
+    dataArray[0] = getJoystickValue(JOYSTICK_L_X_PIN);
+    dataArray[1] = getJoystickValue(JOYSTICK_L_Y_PIN);
 
-  // Right joystick
-  dataArray[2] = getJoystickValue(JOYSTICK_R_X_PIN);
-  dataArray[3] = getJoystickValue(JOYSTICK_R_Y_PIN);
+    // Right joystick
+    dataArray[2] = getJoystickValue(JOYSTICK_R_X_PIN);
+    dataArray[3] = getJoystickValue(JOYSTICK_R_Y_PIN);
 
-  // Buttons
-  dataArray[4] = digitalRead(BTN_LEFT_PIN);
-  dataArray[5] = digitalRead(BTN_RIGHT_PIN);
+    // Buttons
+    dataArray[4] = digitalRead(BTN_LEFT_PIN);
+    dataArray[5] = digitalRead(BTN_RIGHT_PIN);
 
 
-  // If the data array is not the same (data has changed), then send data.
-  int comp = memcmp(prevDataArray, dataArray, sizeof(dataArray));
+    // If the data array is not the same (data has changed), then send data.
+    int comp = memcmp(prevDataArray, dataArray, sizeof(dataArray));
 
-  if (comp != 0) {
-    radio.write(&dataArray, sizeof(dataArray));
-  }
+    if (comp != 0) {
+        radio.write(&dataArray, sizeof(dataArray));
+    }
 }
 
 
 void initRadio() {
-  if (!radio.begin()) {
-    while (1) {}
-  }
+    if (!radio.begin()) {
+        while (1) {}
+    }
 
-  radio.openWritingPipe(ADDRESS);
-  radio.setPALevel(RF24_PA_HIGH);
-  radio.setDataRate(RF24_2MBPS);
+    radio.openWritingPipe(ADDRESS);
+    radio.setPALevel(RF24_PA_HIGH);
+    radio.setDataRate(RF24_2MBPS);
 
-  radio.stopListening();
+    radio.stopListening();
 }
 
 
 int getJoystickValue(int pin) {
-  int maxAdcValue = 1023;  // 1023 is ADC pin max reading for the Attiny88.
-  int halfMaxAdcValue = maxAdcValue / 2;
+    int maxAdcValue = 1023;  // 1023 is ADC pin max reading for the Attiny88.
+    int halfMaxAdcValue = maxAdcValue / 2;
 
-  int potValue = analogRead(pin);
+    int potValue = analogRead(pin);
 
-  // Only return read value if outside joystick resting position.
-  if ((potValue > (halfMaxAdcValue + JOYSTICK_RESTING_DEV)) ||
-    (potValue < (halfMaxAdcValue - JOYSTICK_RESTING_DEV))) {
+    // Only return read value if outside joystick resting position.
+    if ((potValue > (halfMaxAdcValue + JOYSTICK_RESTING_DEV)) ||
+        (potValue < (halfMaxAdcValue - JOYSTICK_RESTING_DEV))) {
 
-    int potValueMapped = map(potValue, 0, maxAdcValue, 0, 255);
+        int potValueMapped = map(potValue, 0, maxAdcValue, 0, 255);
 
-    return potValueMapped;
-  }
-  else {
-    // Return a constant resting value.
-    int restingValue = map(halfMaxAdcValue, 0, maxAdcValue, 0, 255);
-    return restingValue;
-  }
+        return potValueMapped;
+    }
+    else {
+        // Return a constant resting value.
+        int restingValue = map(halfMaxAdcValue, 0, maxAdcValue, 0, 255);
+        return restingValue;
+    }
 }

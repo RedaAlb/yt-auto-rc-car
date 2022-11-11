@@ -1,6 +1,6 @@
 # Arduino Sketches
 
-## /ESP32_Receiver
+## /ESP32_Car
 For the car on-board ESP32 micro-controller.
 
 Communicates with the PC using a udp connection, and with the remote controller using radio signals.
@@ -17,10 +17,10 @@ All libraries can be easily installed using the Arduino IDE library manager.
 - `ESP32Servo` by Kevin Harrington.
 
 
-## /Attiny88_Transmitter
-For the Attiny88 micro-controller that is in the remote controller.
+## /Attiny88_RC
+For the Attiny88 micro-controller that is in the remote controller (RC).
 
-Ideally you want to choose a micro-controller that has low current consumption so the battery lasts longer and is small to fit in the remote controller housing, the Attiny88 is perfect for this.
+Ideally you want to choose a micro-controller that has low current consumption so the battery lasts longer and is small to fit in the RC housing, the Attiny88 is perfect for this.
 
 See below how to upload sketches to the Attiny88.
 

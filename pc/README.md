@@ -13,3 +13,4 @@
 - `esp32.py`, to send and receive data between the pc and the ESP32 using a UDP connection.
     - Key changes to make:
     - `HOST_IP`, local pc ip address.
+    - `ESP32_IP`, local ESP32 ip address, obtain this from ESP32 serial monitor on boot.

@@ -1,5 +1,14 @@
+#include <WiFi.h>
+#include <WiFiUdp.h>
 #include "RF24.h"
 #include "ESP32Servo.h"
+
+
+const char WIFI_SSID[] = "wifi_name";
+const char WIFI_PASS[] = "wifi_password";
+
+const char PC_IP[] = "192.168.0.21";  // Local pc address.
+const int PORT = 5010;
 
 
 // Radio nRF24L01 module.
@@ -29,12 +38,18 @@ const int PWM_RES = 8;
 const int JOYSTICK_RESTING_VALUE = 127;
 
 
-// This array holds all the data that is received from the NRF module.
-// The order and length of this array has to match with the array in the transmitter.
+// This array holds the data that is received from the remote controller (RC).
+// The order and length of this array has to match with the array in the transmitter (Attiny88).
 // Order: joystickLX, joystickLY, joystickRX, joystickRY, btnLeft, btnRight.
-const int NUM_OF_DATA_ITEMS = 6;
-byte dataArray[NUM_OF_DATA_ITEMS];
+const int NUM_OF_RC_DATA_ITEMS = 6;
+byte rcDataArray[NUM_OF_RC_DATA_ITEMS];
 
+// This array holds the received values from the pc.
+const int ITEMS_TO_RECV = 3;  // Number of items in list/array receiving from pc.
+byte receivedPcValues[ITEMS_TO_RECV];
+
+
+WiFiUDP udp;
 
 RF24 radio(CE_PIN, CSN_PIN);
 Servo steeringServo;
@@ -42,6 +57,9 @@ Servo steeringServo;
 
 void setup() {
     Serial.begin(115200);
+
+    connectToWiFi();
+    udp.begin(PORT);
 
     initRadio();
     initPwm();
@@ -52,19 +70,42 @@ void setup() {
 
 
 void loop() {
+    receiveDataFromPc();
+
     if (!radio.available()) {
         return;
     }
 
-    radio.read(&dataArray, sizeof(dataArray));
+    // Read data from the remote controller.
+    radio.read(&rcDataArray, sizeof(rcDataArray));
+
+    sendDataToPc(rcDataArray);
 
     handleVerticalMovement();
     handleSteering();
-
-    printArrayValues(dataArray, (sizeof(dataArray) / sizeof(dataArray[0])), " ");
 }
 
 
+/// @brief Connect the ESP32 to the WiFi.
+void connectToWiFi() {
+    Serial.print("Connecting to ");
+    Serial.print(WIFI_SSID);
+
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println("");
+    Serial.println("WiFi Connected");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
+}
+
+
+/// @brief Initialise radio nrf module to receive data from rc.
 void initRadio() {
     if (!radio.begin()) {
         while (1) {}
@@ -78,6 +119,7 @@ void initRadio() {
 }
 
 
+/// @brief Initialise pwm channels for motor controls.
 void initPwm() {
     int numOfChannels = sizeof(PWM_CHANNELS) / sizeof(PWM_CHANNELS[0]);
 
@@ -93,9 +135,9 @@ void initPwm() {
 }
 
 
-// Based on the position of the left joystick, move forwards or backwards.
+/// @brief Based on the position of the left joystick, move car forwards or backwards.
 void handleVerticalMovement() {
-    int joystickLeftY = dataArray[1];
+    int joystickLeftY = rcDataArray[1];
 
     if (joystickLeftY > JOYSTICK_RESTING_VALUE) {
         int speed = map(joystickLeftY, JOYSTICK_RESTING_VALUE + 1, 255, 0, 255);
@@ -111,8 +153,9 @@ void handleVerticalMovement() {
 }
 
 
+/// @brief Based on the position of the right joystick, control car steering servo.
 void handleSteering() {
-    int joystickRightX = dataArray[2];
+    int joystickRightX = rcDataArray[2];
 
     int minSteeringAngle = STEERING_SERVO_ANGLE_MID - STEERING_SERVO_ANGLE_LIMIT;
     int maxSteeringAngle = STEERING_SERVO_ANGLE_MID + STEERING_SERVO_ANGLE_LIMIT;
@@ -120,12 +163,32 @@ void handleSteering() {
     int servoValue = map(joystickRightX, 0, 255, minSteeringAngle, maxSteeringAngle);
 
     steeringServo.write(servoValue);
-
-    Serial.print(servoValue);
-    Serial.print(" | ");
 }
 
 
+/// @brief Send data to the PC using the UDP connection.
+/// @param dataToSend The data byte array to send to the PC.
+void sendDataToPc(byte dataToSend[]) {
+    udp.beginPacket(PC_IP, PORT);
+    udp.write(dataToSend, NUM_OF_RC_DATA_ITEMS);
+    udp.endPacket();
+}
+
+
+/// @brief Updates receivedPcValues array with values received.
+void receiveDataFromPc() {
+    udp.parsePacket();
+
+    if (udp.read(receivedPcValues, ITEMS_TO_RECV) > 0) {
+        printArrayValues(receivedPcValues, ITEMS_TO_RECV, " ");
+    }
+}
+
+
+/// @brief Prints array values to serial.
+/// @param array The array to print values of.
+/// @param arrayLength Array length.
+/// @param spacer The spacer that will be in-between each value when printed.
 void printArrayValues(byte array[], int arrayLength, String spacer) {
     for (int i = 0; i < arrayLength; i++) {
         int value = array[i];
@@ -138,6 +201,8 @@ void printArrayValues(byte array[], int arrayLength, String spacer) {
 }
 
 
+/// @brief Move car forwards.
+/// @param speed Speed of the car.
 void forward(int speed) {
     ledcWrite(PWM_CHANNELS[0], speed);
     ledcWrite(PWM_CHANNELS[1], 0);
@@ -146,6 +211,8 @@ void forward(int speed) {
 }
 
 
+/// @brief Move car backwards.
+/// @param speed Speed of the car.
 void backward(int speed) {
     ledcWrite(PWM_CHANNELS[0], 0);
     ledcWrite(PWM_CHANNELS[1], speed);
@@ -154,6 +221,7 @@ void backward(int speed) {
 }
 
 
+/// @brief Stop the car.
 void stopCar() {
     ledcWrite(PWM_CHANNELS[0], 0);
     ledcWrite(PWM_CHANNELS[1], 0);

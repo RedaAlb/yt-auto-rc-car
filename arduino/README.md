@@ -3,7 +3,11 @@
 ## /ESP32_Receiver
 For the car on-board ESP32 micro-controller.
 
+Communicates with the PC using a udp connection, and with the remote controller using radio signals.
+
 ### Key changes to make
+- `WIFI_SSID` and `WIFI_PASS`, your WiFi credentials.
+- `PC_IP`, the PC local ip address.
 - The pin numbers to match your wiring (any constant variable with "PIN" in the name).
 
 ### Libraries required
@@ -25,16 +29,6 @@ See below how to upload sketches to the Attiny88.
 
 ### Libraries required
 - `RF24` by TMRh20, Avamander.
-
-
-## /ESP32_WiFiUDP
-To send and receive data between the ESP32 and the PC.
-
-This will eventually be merged with the `/ESP32_Receiver` sketch. Right now it is seperated for initial setup and testing of the communication between the ESP32 and the PC.
-
-### Key changes to make
-- `WIFI_SSID` and `WIFI_PASS`, your WiFi credentials.
-- `PC_IP`, the PC local ip address.
 
 
 # Wiring

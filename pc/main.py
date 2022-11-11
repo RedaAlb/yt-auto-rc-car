@@ -16,11 +16,15 @@ def run():
         if frame is None:
             continue
 
-        
         esp32_recv_data = esp32.recv_esp32_data()
+        if esp32_recv_data is not None:
+            print("ESP32 received data:", esp32_recv_data)
 
-        esp32_data_to_send = [11, 22, 33]  # Sample data.
-        esp32.send_to_esp32(esp32_data_to_send)
+
+        import random
+        esp32_data_to_send = [2, 2, 2]  # Sample data.
+        esp32_data_to_send[1] = random.randint(0, 255)
+        esp32.send_data_esp32(esp32_data_to_send)
 
 
         cv2.imshow("Frame", frame)

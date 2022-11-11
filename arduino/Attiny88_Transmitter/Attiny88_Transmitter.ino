@@ -20,11 +20,11 @@ const int JOYSTICK_R_Y_PIN = A3;
 const int JOYSTICK_RESTING_DEV = 20;  // Deviation from joystick resting value to prevent micro-scale movements.
 
 
-// This array holds all the data that is going to be sent through the NRF module.
-// The order and length of this array has to match with the array in the receiver.
+// This array holds all the data that is going to be sent to the car.
+// The order and length of this array has to match with the array in the receiver (ESP32).
 // Order: joystickLX, joystickLY, joystickRX, joystickRY, btnLeft, btnRight.
-const int NUM_OF_DATA_ITEMS = 6;
-byte dataArray[NUM_OF_DATA_ITEMS];
+const int NUM_OF_RC_DATA_ITEMS = 6;
+byte rcDataArray[NUM_OF_RC_DATA_ITEMS];
 
 
 SoftwareSerial Serial1(RX, TX);
@@ -43,28 +43,28 @@ void setup() {
 
 void loop() {
     // Storing previous data array, to be used to only send data if data has changed.
-    int prevDataArray[NUM_OF_DATA_ITEMS];
-    memcpy(prevDataArray, dataArray, sizeof(dataArray));
+    int prevDataArray[NUM_OF_RC_DATA_ITEMS];
+    memcpy(prevDataArray, rcDataArray, sizeof(rcDataArray));
 
 
     // Left joystick
-    dataArray[0] = getJoystickValue(JOYSTICK_L_X_PIN);
-    dataArray[1] = getJoystickValue(JOYSTICK_L_Y_PIN);
+    rcDataArray[0] = getJoystickValue(JOYSTICK_L_X_PIN);
+    rcDataArray[1] = getJoystickValue(JOYSTICK_L_Y_PIN);
 
     // Right joystick
-    dataArray[2] = getJoystickValue(JOYSTICK_R_X_PIN);
-    dataArray[3] = getJoystickValue(JOYSTICK_R_Y_PIN);
+    rcDataArray[2] = getJoystickValue(JOYSTICK_R_X_PIN);
+    rcDataArray[3] = getJoystickValue(JOYSTICK_R_Y_PIN);
 
     // Buttons
-    dataArray[4] = digitalRead(BTN_LEFT_PIN);
-    dataArray[5] = digitalRead(BTN_RIGHT_PIN);
+    rcDataArray[4] = digitalRead(BTN_LEFT_PIN);
+    rcDataArray[5] = digitalRead(BTN_RIGHT_PIN);
 
 
     // If the data array is not the same (data has changed), then send data.
-    int comp = memcmp(prevDataArray, dataArray, sizeof(dataArray));
+    int comp = memcmp(prevDataArray, rcDataArray, sizeof(rcDataArray));
 
     if (comp != 0) {
-        radio.write(&dataArray, sizeof(dataArray));
+        radio.write(&rcDataArray, sizeof(rcDataArray));
     }
 }
 

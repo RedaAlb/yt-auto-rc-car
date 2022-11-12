@@ -5,6 +5,9 @@ import cv2
 import raspberry
 import esp32
 
+import ui
+import datacollection
+
 
 def run():
     """Main function to run on the pc.
@@ -23,8 +26,12 @@ def run():
 
         # Obtain the data received from the ESP32 using the thread queue.
         esp32_data_recv = esp32.get_queue_value()
-        if esp32_data_recv is not None:
-            print(esp32_data_recv)
+
+
+        # Collected data for model training if collection mode is turned on.
+        if ui.current_mode == ui.DATA_COLLECTION_MODE:
+            datacollection.add_data_sample(frame, esp32_data_recv)
+
 
         # Send data to the ESP32 using the thread queue.
         import random
@@ -34,8 +41,11 @@ def run():
 
         cv2.imshow("Frame", frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        key_pressed = cv2.waitKey(1)
+        if key_pressed == ord("q"):
             break
+
+        ui.handle_key_pressed(key_pressed)
     
 
     cv2.destroyAllWindows()

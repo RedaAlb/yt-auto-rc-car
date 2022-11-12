@@ -1,2 +1,5 @@
 /.vscode
 __pycache__
+
+pc/data/*
+!pc/data/README.md

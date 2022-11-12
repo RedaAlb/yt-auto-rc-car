@@ -14,4 +14,13 @@
     - Key changes to make:
     - `HOST_IP`, local pc ip address.
     - `ESP32_IP`, local ESP32 ip address, obtain this from ESP32 serial monitor on boot.
+- `datacollection.py`, to collect training data for model training.
+- `ui.py`, handles all user interface input.
 - `log.py`, to create loggers using the logging module.
+
+
+# Directories
+
+- `/data`, contains the data collected during the data collection stage.
+
+For more info, refer to the corresponding readme file in each directory.

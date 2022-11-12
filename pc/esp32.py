@@ -2,20 +2,26 @@ import socket
 import threading 
 from queue import Queue
 
+import log
+
 
 HOST_IP = "192.168.0.21"  # PC ip address.
 ESP32_IP = "192.168.0.75"  # Obtain this from ESP32 serial monitor on boot.
 ESP32_PORT = 5010
 
-LOG_PREFIX = "ESP32 -"
-
 BYTES_TO_RECV = 6  # Number of bytes to receive from the ESP32 (length of array).
+
+LOG = True  # Enable or disable logging.
+
+
+logger = log.create_logger("ESP32")
+log.set_logger_display(logger, LOG)
 
 
 esp32_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 esp32_socket.bind((HOST_IP, ESP32_PORT))
 esp32_socket.settimeout(0.001)
-print(LOG_PREFIX, f"UDP connection opened on {HOST_IP}:{ESP32_PORT}...")
+logger.info(f"UDP connection opened on {HOST_IP}:{ESP32_PORT}...")
 
 
 # These queues are used to pass data between the main thread (main.py) and the ESP32 thread.
@@ -105,4 +111,4 @@ def send_data_esp32(data):
     try:
         esp32_socket.sendto(data_bytes, (ESP32_IP, ESP32_PORT))
     except:
-        print(LOG_PREFIX, "Failed to send to ESP32, possibly incorrect ip or port.")
+        logger.warning("Failed to send to ESP32, possibly incorrect ip or port.")

@@ -14,3 +14,4 @@
     - Key changes to make:
     - `HOST_IP`, local pc ip address.
     - `ESP32_IP`, local ESP32 ip address, obtain this from ESP32 serial monitor on boot.
+- `log.py`, to create loggers using the logging module.

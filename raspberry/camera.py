@@ -1,3 +1,4 @@
+import logging
 import socket
 import struct
 import time
@@ -11,11 +12,16 @@ CAM_PORT = 5000
 UDP_BYTE_LIMIT = 65507
 TIME_TO_RECORD = 2000  # How long to keep cam stream recording on in seconds.
 
-LOG_PREFIX = "PiCamera Client -"
-
 FPS = 30
 RESOLUTIONS = ["320x240", "640x480", "1640x922"]
 RES_INDEX = 1  # Resolution index to use, chosen from RESOLUTIONS.
+
+LOG = True
+
+
+logger = logging.getLogger("Camera")
+logging.basicConfig(level=logging.INFO, format='%(name)s (%(levelname)s): %(message)s')
+logger.disabled = not LOG
 
 
 host = (HOST_IP, CAM_PORT)
@@ -45,7 +51,7 @@ def send_img_bytes(img_bytes):
     try:
         cam_socket.sendto(img_num_bytes_packet, host)
     except:
-        print(LOG_PREFIX, "Failed to send image number of bytes.")
+        logger.warning("Failed to send image number of bytes.")
 
 
     # Send image in one chunk if image size is under the udp bytes limit.
@@ -53,7 +59,7 @@ def send_img_bytes(img_bytes):
         try:
             cam_socket.sendto(img_bytes, host)
         except:
-            print(LOG_PREFIX, "Failed to send full frame.")
+            logger.warning("Failed to send full frame.")
 
     # Send in two chunks if image size exceeds the udp byte limit.
     else:
@@ -63,7 +69,7 @@ def send_img_bytes(img_bytes):
             cam_socket.sendto(img_bytes[:half_img_num_bytes], host)
             cam_socket.sendto(img_bytes[half_img_num_bytes:], host)
         except:
-            print(LOG_PREFIX, "Failed to send two frame halves.")
+            logger.warning("Failed to send two frame halves.")
 
 
 class CamHandler():
@@ -87,13 +93,13 @@ def start_cam_stream():
     cam_handler = CamHandler()
 
     with picamera.PiCamera(resolution=RESOLUTIONS[RES_INDEX], framerate=FPS) as camera:
-        print(LOG_PREFIX, "Getting ready...")
+        logger.info("Getting ready...")
         time.sleep(2)
 
         camera.rotation = 180
 
         camera.start_recording(cam_handler, format="mjpeg")
-        print(LOG_PREFIX, "Ready and started recording...")
+        logger.info("Ready and started recording...")
 
         camera.wait_recording(TIME_TO_RECORD)
         camera.stop_recording()

@@ -4,20 +4,26 @@ import struct
 import numpy as np
 import cv2
 
+import log
+
 
 HOST_IP = "192.168.0.21"  # PC ip address.
 CAM_PORT = 5000
 
 UDP_BYTE_LIMIT = 65507
 
-LOG_PREFIX = "Raspberry Host -"
+LOG = True
+
+
+logger = log.create_logger("Raspberry")
+log.set_logger_display(logger, LOG)
 
 
 host = (HOST_IP, CAM_PORT)
 
 cam_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 cam_socket.bind(host)
-print(LOG_PREFIX, f"UDP connection opened on {HOST_IP}:{CAM_PORT}...")
+logger.info(f"UDP connection opened on {HOST_IP}:{CAM_PORT}...")
 
 
 def recv_img_bytes():
@@ -33,7 +39,7 @@ def recv_img_bytes():
     try:
         img_num_bytes = struct.unpack("<L", cam_socket.recvfrom(4)[0])[0]
     except:
-        print(LOG_PREFIX, "Failed to receive image number of bytes.")
+        logger.warning("Failed to receive image number of bytes.")
         return None
 
 
@@ -43,7 +49,7 @@ def recv_img_bytes():
             img_bytes = cam_socket.recvfrom(img_num_bytes)[0]
             return img_bytes
         except:
-            print(LOG_PREFIX, "Full frame was not received successfully.")
+            logger.warning("Failed to receive full frame.")
             return None
     # Receive in two chunks if image size exceeds the udp byte limit.
     else:
@@ -58,7 +64,7 @@ def recv_img_bytes():
             img_bytes = half1 + half2
             return img_bytes
         except:
-            print(LOG_PREFIX, "Two frame halves were not received successfully.")
+            logger.warning("Failed to receive two frame halves.")
             return None
 
 
